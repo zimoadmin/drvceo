@@ -1,0 +1,26 @@
+name: Sync official DrvCeo installer
+on:
+  schedule:
+    - cron: '37 */6 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/**
+      - .github/workflows/sync.yml
+permissions:
+  contents: write
+concurrency:
+  group: drvceo-sync
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Download, verify, and publish only if changed
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./scripts/sync.ps1
